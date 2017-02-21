@@ -1,39 +1,46 @@
-{% extends "layout.html" %}
-{% block body %}
-    {% raw %}
-    <div class="inner cover" id="app">
-      <h1 class="cover-heading">Request a cab</h1>
-			<form v-on:submit.prevent="loadResults">
+{% extends "layout.html" %} {% block body %} {% raw %}
+<div class="container">
+	<div class="row justify-content-center">
+		<div class="col-sm-6" id="app">
+			<form v-on:submit.prevent="loadResults" id="search-form">
 				<div class="input-group">
-				  <input type="text" class="form-control form-control-sm" placeholder="From ?" id="from">
+					<input type="text" class="form-control" placeholder="From ?" id="from">
 				</div>
-				
+		
 				<div class="input-group">
-				  <input type="text" class="form-control form-control-sm" placeholder="To ?" id="to">
+					<input type="text" class="form-control" placeholder="To ?" id="to">
 				</div>
-				<button type="submit" class="btn btn-block btn-success">Search !</button>
 			</form>
-
+		
 			<div id="results" class="row">
-				<div v-for="r in results" class="cab col-sm-3">
+				<div class="loader" v-show="loading">
+					<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+				</div>
+				<div v-for="r in results" class="cab col-4">
 					<div class="cab-inner">
-						<div class="cab-type">{{r.type}}</div>
-						<div class="cab-distance">{{r.distance}}</div>
-						<div class="cab-price">{{r.price}}</div>
+						<div class="cab-picture" v-bind:style="{ backgroundImage: 'url(' + r.image + ')' }"></div>
+						<div class="cab-type">{{r.display_name}}</div>
+						<div class="cab-distance">{{r.distance}} km</div>
+						<div class="cab-price">{{r.estimate}}</div>
+						<div class="cab-duration">{{r.duration / 60}} mn</div>
+						<div class="cab-pickuptime" v-show="r.estimate_pickuptime">{{r.estimate_pickuptime / 60}} mn</div>
 					</div>
 				</div>
 			</div>
-
+		
 			<div id="map"></div>
-    </div>
-    {% endraw %}
-{% endblock %}
+		</div>
+	</div>
+</div>
+{% endraw %} 
+{% endblock %} 
 
 {% block scripts %}
-	<script src="https://unpkg.com/vue/dist/vue.js"></script>
-	<script src="{{ url_for('static', filename='scripts/search.js') }}"></script>
-	
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBBGLst2_5aTRSKZRw0RglUN0dX_Qtao60&signed_in=true&libraries=places&callback=initMap"
-        async defer></script>
-  </body>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/vue.resource/1.2.0/vue-resource.min.js"></script>
+
+<script src="{{ url_for('static', filename='scripts/search.js') }}"></script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBBGLst2_5aTRSKZRw0RglUN0dX_Qtao60&signed_in=true&libraries=places&callback=initMap" async defer></script>
+</body>
 {% endblock %}

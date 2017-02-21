@@ -27,6 +27,11 @@ def login():
 def login_uber():
     return redirect(url)
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 @app.route("/api/uber/oauth", methods = ["GET"])
 def callback():
     oauth2credentials = authorize_user.handle_callback(auth_flow, request.url)
@@ -43,10 +48,50 @@ def callback():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route("/api/products")
+def products():
+    lat = request.args['lat']
+    lng = request.args['lng']
+    uber_session = get_uber_session(credentials)
+    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
+    response = uber_client.get_products(lat, lng)
+    times = response.json.get('products')
+
+    return jsonify(times)
+
+@app.route("/api/pickuptimes")
+def pickuptime():
+    lat = request.args['lat']
+    lng = request.args['lng']
+    uber_session = get_uber_session(credentials)
+    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
+    response = uber_client.get_pickup_time_estimates(lat, lng)
+    times = response.json.get('times')
+
+    return jsonify(times)
+
+@app.route("/api/prices")
+def prices():
+    start_lat = request.args['start_lat']
+    start_lng = request.args['start_lng']
+    end_lat = request.args['end_lat']
+    end_lng = request.args['end_lng']
+    uber_session = get_uber_session(credentials)
+    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
+    response = uber_client.get_price_estimates(
+        start_latitude=start_lat,
+        start_longitude=start_lng,
+        end_latitude=end_lat,
+        end_longitude=end_lng,
+        seat_count=2
+    )
+    estimate = response.json.get('prices')
+    return jsonify(estimate)
+
 @app.route("/api/uber/activity")
 def activity():
     uber_session = get_uber_session(credentials)
-    uber_client = UberRidesClient(uber_session, sandbox_mode=True)
+    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
     response = uber_client.get_user_activity()
     history = response.json
 
