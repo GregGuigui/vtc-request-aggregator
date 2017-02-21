@@ -48,18 +48,3 @@ def handle_callback(auth_flow, callback_url):
         return error
 
     return session.oauth2credential
-    # credential_data = {
-    #     'client_id': credential.client_id,
-    #     'redirect_url': credential.redirect_url,
-    #     'access_token': credential.access_token,
-    #     'expires_in_seconds': credential.expires_in_seconds,
-    #     'scopes': list(credential.scopes),
-    #     'grant_type': credential.grant_type,
-    #     'client_secret': credential.client_secret,
-    #     'refresh_token': credential.refresh_token,
-    # }
-
-    # with open(utils.CREDENTIALS_FILENAME, 'w') as yaml_file:
-    #     yaml_file.write(safe_dump(credential_data, default_flow_style=False))
-
-    # return UberRidesClient(session, sandbox_mode=True)

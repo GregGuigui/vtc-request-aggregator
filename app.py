@@ -4,6 +4,8 @@ from uber_rides.client import UberRidesClient
 from uber_rides.session import OAuth2Credential
 from uber_rides.session import Session
 from middlewares.auth import get_uber_session
+
+import os
 import authorize_user
 import utils
 
@@ -11,11 +13,13 @@ app = Flask(__name__)
 app.debug = True
 app.secret_key = 'GregGuiCle'
 
-app.credentials = credentials = utils.import_app_credentials("config.yml")
+env = os.getenv('ENV', 'dev')
+print(env)
+app.credentials = credentials = utils.import_app_credentials("config/config." + env + ".yml")
 auth_flow = authorize_user.get_auth_flow(credentials)
 url = authorize_user.authorization_code_grant_flow(auth_flow)
 
-@app.route("/login")
+@app.route("/")
 def login():
     return render_template('index.html')
 
@@ -50,4 +54,4 @@ def activity():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=3000)
+    app.run(host=os.getenv('IP', '0.0.0.0'), port=int(os.getenv('PORT', 8080)))
