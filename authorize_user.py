@@ -41,10 +41,5 @@ def authorization_code_grant_flow(auth_flow):
     return auth_url
 
 def handle_callback(auth_flow, callback_url):
-    try:
-        session = auth_flow.get_session(callback_url)
-
-    except (ClientError, UberIllegalState) as error:
-        return error
-
+    session = auth_flow.get_session(callback_url)
     return session.oauth2credential
