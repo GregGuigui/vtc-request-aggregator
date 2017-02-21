@@ -1,8 +1,16 @@
-from flask import session
+from flask import session, request, g
 from uber_rides.session import OAuth2Credential, Session
+from uber_rides.client import UberRidesClient
 
-def get_uber_session(credentials):
+from app import app, env
+from services.uber_credentials import credentials
+
+@app.before_request
+def get_uber_session():
     oauth2credential = session.get('tokens')
+    
+    if oauth2credential is None:
+        return
     # if oauth2credential is None:
     #     return false
 
@@ -16,5 +24,5 @@ def get_uber_session(credentials):
         client_secret=credentials['client_secret'],
         refresh_token=oauth2credential['refresh_token'])
 
-    uber_session = Session(oauth2credential=uber_credentials)
-    return uber_session
+    g.uber_session = Session(oauth2credential=uber_credentials)
+    g.uber_client = UberRidesClient(g.uber_session, sandbox_mode=(env != 'prod'))

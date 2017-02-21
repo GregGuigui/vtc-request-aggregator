@@ -5,15 +5,13 @@ from __future__ import unicode_literals
 
 from yaml import safe_dump
 
-import utils
-from utils import import_app_credentials
+from services.utils import import_app_credentials
 
 from uber_rides.auth import AuthorizationCodeGrant
 from uber_rides.client import UberRidesClient
 from uber_rides.errors import ClientError
 from uber_rides.errors import ServerError
 from uber_rides.errors import UberIllegalState
-import utils
 
 def get_auth_flow(credentials):
     return AuthorizationCodeGrant(

@@ -1,35 +1,38 @@
-from flask import Flask, redirect, request, jsonify, session, url_for, render_template
-from yaml import safe_dump
-from uber_rides.client import UberRidesClient
-from uber_rides.session import OAuth2Credential
-from uber_rides.session import Session
-from middlewares.auth import get_uber_session
-
 import os
-import authorize_user
-import utils
+import services.authorize_user as authorize_user
 
-app = Flask(__name__)
+from flask import Flask, redirect, request, jsonify, session, url_for, render_template, g
+from yaml import safe_dump
+from uber_rides.session import OAuth2Credential, Session
+from app import app, env
+from middlewares.auth import get_uber_session
+from services.uber_credentials import auth_flow, uber_url
+
 app.debug = True
 app.secret_key = 'GregGuiCle'
 
-env = os.getenv('ENV', 'dev')
-print(env)
-app.credentials = credentials = utils.import_app_credentials("config/config." + env + ".yml")
-auth_flow = authorize_user.get_auth_flow(credentials)
-url = authorize_user.authorization_code_grant_flow(auth_flow)
+app.config.update(dict(
+  PREFERRED_URL_SCHEME = 'http' if env == 'dev' else 'https'
+))
 
 @app.route("/")
 def login():
+    if 'tokens' in session:
+        return redirect(url_for('dashboard'))
+        
     return render_template('index.html')
 
 @app.route("/api/uber/login")
 def login_uber():
-    return redirect(url)
+    if 'tokens' in session:
+        return redirect(url_for('dashboard'))
+        
+    return redirect(uber_url)
 
 @app.route("/logout")
 def logout():
     session.clear()
+    print(url_for('login'))
     return redirect(url_for('login'))
 
 @app.route("/api/uber/oauth", methods = ["GET"])
@@ -46,15 +49,21 @@ def callback():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template('dashboard.html')
+    if 'tokens' not in session:
+        return redirect(code=302, location=url_for('login'))
+        
+    if 'profile' not in session:
+        response = g.uber_client.get_user_profile()
+        profile = response.json
+        session['profile'] = profile
+        
+    return render_template('dashboard.html', profile=session['profile'])
 
 @app.route("/api/products")
 def products():
     lat = request.args['lat']
     lng = request.args['lng']
-    uber_session = get_uber_session(credentials)
-    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
-    response = uber_client.get_products(lat, lng)
+    response = g.uber_client.get_products(lat, lng)
     times = response.json.get('products')
 
     return jsonify(times)
@@ -63,9 +72,7 @@ def products():
 def pickuptime():
     lat = request.args['lat']
     lng = request.args['lng']
-    uber_session = get_uber_session(credentials)
-    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
-    response = uber_client.get_pickup_time_estimates(lat, lng)
+    response = g.uber_client.get_pickup_time_estimates(lat, lng)
     times = response.json.get('times')
 
     return jsonify(times)
@@ -76,9 +83,7 @@ def prices():
     start_lng = request.args['start_lng']
     end_lat = request.args['end_lat']
     end_lng = request.args['end_lng']
-    uber_session = get_uber_session(credentials)
-    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
-    response = uber_client.get_price_estimates(
+    response = g.uber_client.get_price_estimates(
         start_latitude=start_lat,
         start_longitude=start_lng,
         end_latitude=end_lat,
@@ -90,13 +95,7 @@ def prices():
 
 @app.route("/api/uber/activity")
 def activity():
-    uber_session = get_uber_session(credentials)
-    uber_client = UberRidesClient(uber_session, sandbox_mode=(env != 'prod'))
-    response = uber_client.get_user_activity()
+    response = g.uber_client.get_user_activity()
     history = response.json
 
     return jsonify(history)
-
-
-if __name__ == "__main__":
-    app.run(host=os.getenv('IP', '0.0.0.0'), port=int(os.getenv('PORT', 8080)))
