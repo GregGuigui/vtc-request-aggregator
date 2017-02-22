@@ -3,7 +3,7 @@ client_id: roVfdTtxbBcnvjKhi8cWEhRC-sAqB6Y0
 client_secret: hA_d5ObgPaP6jWpMnHFaSg-doMODCaIFOxb05d5L
 expires_in_seconds: 1490115481
 grant_type: authorization_code
-redirect_url: http://localhost:3000/api/uber/oauth
+redirect_url: http://localhost:8080/api/uber/oauth
 refresh_token: gwtNAH57S1dIoswe3U7bgRSVCUHkZm
 scopes:
 - profile

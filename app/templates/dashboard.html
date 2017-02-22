@@ -24,9 +24,9 @@
 					<div class="cab-inner">
 						<div class="cab-picture" v-bind:style="{ backgroundImage: 'url(' + r.image + ')' }"></div>
 						<div class="cab-type">{{r.display_name}}</div>
-						<div class="cab-distance">{{r.distance}} km</div>
-						<div class="cab-price">{{r.estimate}}</div>
-						<div class="cab-duration">{{r.duration / 60}} mn</div>
+						<div class="cab-distance" v-show="r.distance">{{r.distance}} km</div>
+						<div class="cab-price" v-show="r.estimate">{{r.estimate}}</div>
+						<div class="cab-duration" v-show="r.duration">{{r.duration / 60}} mn</div>
 						<div class="cab-pickuptime" v-show="r.estimate_pickuptime">{{r.estimate_pickuptime / 60}} mn</div>
 					</div>
 				</div>

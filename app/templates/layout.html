@@ -9,7 +9,7 @@
   <title>Cover Template for Bootstrap</title>
 
   <!-- Bootstrap core CSS -->
-  <link rel="stylesheet" href="https://bootswatch.com/4-alpha/flatly/bootstrap.min.css">
+  <link rel="stylesheet" href="https://bootswatch.com/4-alpha/yeti/bootstrap.min.css">
 
   <!-- Custom styles for this template -->
   <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/cover.css') }}">
@@ -36,21 +36,23 @@
           <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
         </li>
         {% endif %}
-        
-        {% if session.tokens %}
+      </ul>
+
+      {% if session.tokens %}
+      <ul class="nav navbar-nav">                  
           {% if profile %}
           <li class="nav-item">
             <span class="nav-link">
               {{profile.first_name}}
-              <img src="{{profile.picture}}" height="25" />
+              <img src="{{profile.picture}}" height="40" id="profile-picture" />
             </span>
           </li>
           {% endif %}
-          <li class="nav-item">
+          <li class="nav-item pull-xs-right">
             <a class="btn btn-outline-success" href="/logout">Logout</a>
           </li>
-        {% endif %}
       </ul>
+      {% endif %}
     </div>
   </nav>
   
