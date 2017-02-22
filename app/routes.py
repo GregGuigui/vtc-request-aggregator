@@ -7,6 +7,7 @@ from uber_rides.session import OAuth2Credential, Session
 from app import app, env
 from middlewares.auth import get_uber_session
 from services.uber_credentials import auth_flow, uber_url
+from db import db, User
 
 app.debug = True
 app.secret_key = 'GregGuiCle'
@@ -44,6 +45,17 @@ def callback():
         'expires_in_seconds': oauth2credentials.expires_in_seconds,
         'grant_type': oauth2credentials.grant_type
     }
+    existing_user = User.query.filter_by(uber_client_id=oauth2credentials.client_id).first()
+    if(existing_user is None):
+        existing_user = User(oauth2credentials.access_token, oauth2credentials.refresh_token, oauth2credentials.client_id)
+        db.session.add(existing_user)
+    else:
+        existing_user.access_token = oauth2credentials.access_token
+        existing_user.refresh_token = oauth2credentials.refresh_token
+        
+    db.session.commit()
+    cred_json['user_id'] = existing_user.id
+    
     session['tokens'] = cred_json
     return redirect(url_for('dashboard'))
 

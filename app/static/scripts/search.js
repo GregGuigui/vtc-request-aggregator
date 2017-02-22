@@ -101,8 +101,8 @@ function initMap() {
 	var directionsDisplay = new google.maps.DirectionsRenderer;
 
 	var latlng = {
-		lat: 0,
-		lng: 0
+		lat: 48.862169,
+		lng: 2.336826
 	};
 	if (userPosition) {
 		latlng.lat = userPosition.coords.latitude;
@@ -157,9 +157,6 @@ function calculateAndDisplayRoute(placeFrom, placeTo, directionsService, directi
 function getLocation() {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(showPosition);
-	}
-	else {
-		x.innerHTML = "Geolocation is not supported by this browser.";
 	}
 }
 
