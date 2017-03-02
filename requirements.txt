@@ -4,3 +4,4 @@ gunicorn==19.6.0
 SQLAlchemy==1.1.5
 Flask-SQLAlchemy==2.1
 Flask-Migrate==2.0.3
+lyft-rides==0.1.0b0

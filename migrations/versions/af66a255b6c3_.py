@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 9fed11fc3929
+Revision ID: af66a255b6c3
 Revises: 
-Create Date: 2017-02-22 17:23:13.587843
+Create Date: 2017-03-02 14:36:02.423308
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9fed11fc3929'
+revision = 'af66a255b6c3'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,7 +23,13 @@ def upgrade():
     sa.Column('uber_access_token', sa.String(length=120), nullable=True),
     sa.Column('uber_refresh_token', sa.String(length=120), nullable=True),
     sa.Column('uber_client_id', sa.String(length=120), nullable=True),
+    sa.Column('lyft_access_token', sa.String(length=120), nullable=True),
+    sa.Column('lyft_refresh_token', sa.String(length=120), nullable=True),
+    sa.Column('lyft_client_id', sa.String(length=120), nullable=True),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('lyft_access_token'),
+    sa.UniqueConstraint('lyft_client_id'),
+    sa.UniqueConstraint('lyft_refresh_token'),
     sa.UniqueConstraint('uber_access_token'),
     sa.UniqueConstraint('uber_client_id'),
     sa.UniqueConstraint('uber_refresh_token')

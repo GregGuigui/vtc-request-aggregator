@@ -15,11 +15,12 @@ class User(db.Model):
     uber_access_token = db.Column(db.String(120), unique=True)
     uber_refresh_token = db.Column(db.String(120), unique=True)
     uber_client_id = db.Column(db.String(120), unique=True)
+    lyft_access_token = db.Column(db.String(120), unique=True)
+    lyft_refresh_token = db.Column(db.String(120), unique=True)
+    lyft_client_id = db.Column(db.String(120), unique=True)
 
-    def __init__(self, uber_access_token, uber_refresh_token, uber_client_id):
-        self.uber_access_token = uber_access_token
-        self.uber_access_token = uber_access_token
-        self.uber_client_id = uber_client_id
+    def __init__(self):
+        return
 
     def __repr__(self):
         return '<User %r>' % self.uber_access_token

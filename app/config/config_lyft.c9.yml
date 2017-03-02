@@ -1,0 +1,10 @@
+access_token: gAAAAABYtvVCZUK1fnuwBgU21RHi1qPfN71HURgdpwUtpwezx_8sjD-gX9zvC2bFF1NRcVrCvZyC3vmt-SHklYhHtBQc1gr97KLBsZ9Mu1UrDvZKb0LJ82he6WxLXEDtx0oTPRfPA0kdz5cs5DV0W4zWskBfzNjzEGEhhTmD1uM9XTOeC4EqaH4=
+client_id: M16Mo3IMRSx-
+client_secret: 3MsMLNHo-a7LwX-qA665PfUtm8fJl0UA
+expires_in_seconds: 1490115481
+grant_type: authorization_code
+redirect_url: https://vtc-request-aggregator-ghiltoniel.c9users.io/api/lyft/oauth
+refresh_token: gwtNAH57S1dIoswe3U7bgRSVCUHkZm
+scopes:
+- public
+- rides.request
