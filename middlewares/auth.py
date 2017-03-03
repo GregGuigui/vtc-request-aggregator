@@ -4,43 +4,47 @@ from uber_rides.client import UberRidesClient
 from lyft_rides.client import LyftRidesClient
 
 from app import app, env
+from app.db import User
 from services.uber_authorize_user import credentials as uber_credentials
 from services.lyft_authorize_user import credentials as lyft_credentials
 
 @app.before_request
 def get_vtc_session():
-    tokens = session.get('tokens')
+    user_id = session.get('user_id')
     
-    if tokens is None:
+    if user_id is None:
         return
+    
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return
+    
     # if oauth2credential is None:
     #     return false
-    if 'uber' in tokens:
-        uber_oauth2credential_infos = tokens['uber']
+    if user.uber_access_token is not None:
         uber_oauth2credentials = OAuth2Credential(
             client_id=uber_credentials['client_id'],
-            access_token=uber_oauth2credential_infos['access_token'],
-            expires_in_seconds=uber_oauth2credential_infos['expires_in_seconds'],
             scopes=uber_credentials['scopes'],
-            grant_type=uber_oauth2credential_infos['grant_type'],
             redirect_url=uber_credentials['redirect_url'],
             client_secret=uber_credentials['client_secret'],
-            refresh_token=uber_oauth2credential_infos['refresh_token'])
+            access_token=user.uber_access_token,
+            refresh_token=user.uber_refresh_token,
+            expires_in_seconds=user.uber_expires_in_seconds,
+            grant_type=user.uber_grant_type)
     
         g.uber_session = Session(oauth2credential=uber_oauth2credentials)
         g.uber_client = UberRidesClient(g.uber_session, sandbox_mode=(env != 'prod'))
     
-    if 'lyft' in tokens:
-        lyft_oauth2credential_infos = tokens['lyft']
+    if user.lyft_access_token is not None:
         lyft_oauth2credentials = OAuth2Credential(
             client_id=lyft_credentials['client_id'],
-            access_token=lyft_oauth2credential_infos['access_token'],
-            expires_in_seconds=lyft_oauth2credential_infos['expires_in_seconds'],
             scopes=lyft_credentials['scopes'],
-            grant_type=lyft_oauth2credential_infos['grant_type'],
             redirect_url=lyft_credentials['redirect_url'],
             client_secret=lyft_credentials['client_secret'],
-            refresh_token=lyft_oauth2credential_infos['refresh_token'])
+            access_token=user.lyft_access_token,
+            refresh_token=user.lyft_refresh_token,
+            expires_in_seconds=user.lyft_expires_in_seconds,
+            grant_type=user.lyft_grant_type)
     
         g.lyft_session = Session(oauth2credential=lyft_oauth2credentials)
         g.lyft_client = LyftRidesClient(g.lyft_session)

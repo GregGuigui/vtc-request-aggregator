@@ -24,14 +24,14 @@ app.config.update(dict(
 
 @app.route("/")
 def login():
-    if 'tokens' in session:
+    if 'user_id' in session:
         return redirect(url_for('dashboard'))
         
     return render_template('index.html')
 
 @app.route("/api/<vtc_name>/login")
 def login_oauth(vtc_name):
-    if 'tokens' in session:
+    if 'user_id' in session:
         return redirect(url_for('dashboard'))
     
     url = get_oauth_url(vtc_name)
@@ -46,13 +46,13 @@ def logout():
 def oauth_callback(vtc_name):
     oauth2credentials = get_credentials(vtc_name, request.url)
     existing_user = User.create_or_update('uber', oauth2credentials)
-    create_session(existing_user);
+    session['user_id'] = existing_user.id
    
     return redirect(url_for('dashboard'))
 
 @app.route("/dashboard")
 def dashboard():
-    if 'tokens' not in session:
+    if 'user_id' not in session:
         return redirect(code=302, location=url_for('login'))
         
     if 'profile' not in session:
@@ -64,7 +64,7 @@ def dashboard():
 
 @app.route("/api/products")
 def products():
-    if 'tokens' not in session:
+    if 'user_id' not in session:
         return redirect(code=302, location=url_for('login'))
         
     lat = request.args['lat']
@@ -76,7 +76,7 @@ def products():
 
 @app.route("/api/pickuptimes")
 def pickuptime():
-    if 'tokens' not in session:
+    if 'user_id' not in session:
         return redirect(code=302, location=url_for('login'))
         
     lat = request.args['lat']
@@ -88,7 +88,7 @@ def pickuptime():
 
 @app.route("/api/prices")
 def prices():
-    if 'tokens' not in session:
+    if 'user_id' not in session:
         return redirect(code=302, location=url_for('login'))
         
     start_lat = request.args['start_lat']
@@ -107,7 +107,7 @@ def prices():
 
 @app.route("/api/uber/activity")
 def activity():
-    if 'tokens' not in session:
+    if 'user_id' not in session:
         return redirect(code=302, location=url_for('login'))
         
     response = g.uber_client.get_user_activity()

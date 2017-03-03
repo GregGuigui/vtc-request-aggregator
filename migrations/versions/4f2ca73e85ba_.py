@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: af66a255b6c3
+Revision ID: 4f2ca73e85ba
 Revises: 
-Create Date: 2017-03-02 14:36:02.423308
+Create Date: 2017-03-03 16:37:20.456942
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'af66a255b6c3'
+revision = '4f2ca73e85ba'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,15 +23,23 @@ def upgrade():
     sa.Column('uber_access_token', sa.String(length=120), nullable=True),
     sa.Column('uber_refresh_token', sa.String(length=120), nullable=True),
     sa.Column('uber_client_id', sa.String(length=120), nullable=True),
+    sa.Column('uber_expires_in_seconds', sa.String(length=120), nullable=True),
+    sa.Column('uber_grant_type', sa.String(length=120), nullable=True),
     sa.Column('lyft_access_token', sa.String(length=120), nullable=True),
     sa.Column('lyft_refresh_token', sa.String(length=120), nullable=True),
     sa.Column('lyft_client_id', sa.String(length=120), nullable=True),
+    sa.Column('lyft_expires_in_seconds', sa.String(length=120), nullable=True),
+    sa.Column('lyft_grant_type', sa.String(length=120), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('lyft_access_token'),
     sa.UniqueConstraint('lyft_client_id'),
+    sa.UniqueConstraint('lyft_expires_in_seconds'),
+    sa.UniqueConstraint('lyft_grant_type'),
     sa.UniqueConstraint('lyft_refresh_token'),
     sa.UniqueConstraint('uber_access_token'),
     sa.UniqueConstraint('uber_client_id'),
+    sa.UniqueConstraint('uber_expires_in_seconds'),
+    sa.UniqueConstraint('uber_grant_type'),
     sa.UniqueConstraint('uber_refresh_token')
     )
     # ### end Alembic commands ###
