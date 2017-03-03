@@ -4,6 +4,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from yaml import safe_dump
+from flask import session
+from app import app, env
 
 from services.utils import import_app_credentials
 
@@ -13,29 +15,25 @@ from uber_rides.errors import ClientError
 from uber_rides.errors import ServerError
 from uber_rides.errors import UberIllegalState
 
-def get_auth_flow(credentials):
+credentials = import_app_credentials("app/config/config_uber." + env + ".yml")
+
+def get_url():
+    auth_flow = get_auth_flow()
+    session['uber_state_token'] = auth_flow.state_token
+    uber_url = authorization_code_grant_flow(auth_flow)
+    return uber_url
+
+def get_auth_flow(state_token=None):
     return AuthorizationCodeGrant(
         credentials.get('client_id'),
         credentials.get('scopes'),
         credentials.get('client_secret'),
         credentials.get('redirect_url'),
+        state_token
     )
 
 def authorization_code_grant_flow(auth_flow):
-    """Get an access token through Authorization Code Grant.
-    Parameters
-        credentials (dict)
-            All your app credentials and information
-            imported from the configuration file.
-        storage_filename (str)
-            Filename to store OAuth 2.0 Credentials.
-    Returns
-        (UberRidesClient)
-            An UberRidesClient with OAuth 2.0 Credentials.
-    """
-    
     auth_url = auth_flow.get_authorization_url()
-
     return auth_url
 
 def handle_callback(auth_flow, callback_url):

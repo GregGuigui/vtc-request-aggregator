@@ -6,10 +6,13 @@ from flask import Flask, redirect, request, jsonify, session, url_for, render_te
 from yaml import safe_dump
 from uber_rides.session import OAuth2Credential, Session
 from app import app, env
-from middlewares.auth import get_vtc_session
-from services.uber_credentials import auth_flow as uber_auth_flow, uber_url
-from services.lyft_credentials import auth_flow as lyft_auth_flow, lyft_url
 from db import db, User
+
+from middlewares.auth import get_vtc_session
+
+from services.uber_authorize_user import get_auth_flow as get_uber_auth_flow
+from services.lyft_authorize_user import get_auth_flow as get_lyft_auth_flow
+from services.oauth_manager import get_oauth_url, get_credentials
 from services.session_manager import create_session
 
 app.debug = True
@@ -26,39 +29,25 @@ def login():
         
     return render_template('index.html')
 
-@app.route("/api/uber/login")
-def login_uber():
+@app.route("/api/<vtc_name>/login")
+def login_oauth(vtc_name):
     if 'tokens' in session:
         return redirect(url_for('dashboard'))
-        
-    return redirect(uber_url)
-
-@app.route("/api/lyft/login")
-def login_lyft():
-    if 'tokens' in session:
-        return redirect(url_for('dashboard'))
-        
-    return redirect(lyft_url)
+    
+    url = get_oauth_url(vtc_name)
+    return redirect(url)
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route("/api/uber/oauth", methods = ["GET"])
-def uber_callback():
-    oauth2credentials = uber_authorize_user.handle_callback(uber_auth_flow, request.url)
+@app.route("/api/<vtc_name>/oauth", methods = ["GET"])
+def oauth_callback(vtc_name):
+    oauth2credentials = get_credentials(vtc_name, request.url)
     existing_user = User.create_or_update('uber', oauth2credentials)
     create_session(existing_user);
    
-    return redirect(url_for('dashboard'))
-    
-@app.route("/api/lyft/oauth", methods = ["GET"])
-def lyft_callback():
-    oauth2credentials = lyft_authorize_user.handle_callback(lyft_auth_flow, request.url)
-    existing_user = User.create_or_update('lyft', oauth2credentials)
-    create_session(existing_user);
-    
     return redirect(url_for('dashboard'))
 
 @app.route("/dashboard")

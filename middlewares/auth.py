@@ -4,8 +4,8 @@ from uber_rides.client import UberRidesClient
 from lyft_rides.client import LyftRidesClient
 
 from app import app, env
-from services.uber_credentials import credentials as uber_credentials
-from services.lyft_credentials import credentials as lyft_credentials
+from services.uber_authorize_user import credentials as uber_credentials
+from services.lyft_authorize_user import credentials as lyft_credentials
 
 @app.before_request
 def get_vtc_session():
