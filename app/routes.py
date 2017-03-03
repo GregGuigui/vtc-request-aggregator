@@ -13,7 +13,6 @@ from middlewares.auth import get_vtc_session
 from services.uber_authorize_user import get_auth_flow as get_uber_auth_flow
 from services.lyft_authorize_user import get_auth_flow as get_lyft_auth_flow
 from services.oauth_manager import get_oauth_url, get_credentials
-from services.session_manager import create_session
 
 app.debug = True
 app.secret_key = 'GregGuiCle'
