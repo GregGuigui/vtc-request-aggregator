@@ -23,7 +23,8 @@ def get_auth_flow(state_token=None):
     return AuthorizationCodeGrant(
         credentials.get('client_id'),
         credentials.get('client_secret'),
-        credentials.get('scopes'), 
+        credentials.get('scopes'),
+        True,
         state_token
     )
 
