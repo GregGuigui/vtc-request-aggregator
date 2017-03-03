@@ -24,3 +24,19 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.uber_access_token
+        
+    @staticmethod
+    def create_or_update(vtc_name, oauth2credentials):
+        existing_user = User.query.filter_by(uber_client_id=oauth2credentials.client_id).first()
+        if(existing_user is None):
+            existing_user = User()
+            db.session.add(existing_user)
+            
+        setattr(existing_user, vtc_name + '_access_token', oauth2credentials.access_token)
+        setattr(existing_user, vtc_name + '_refresh_token', oauth2credentials.refresh_token)
+        setattr(existing_user, vtc_name + '_expires_in_seconds', oauth2credentials.expires_in_seconds)
+        setattr(existing_user, vtc_name + '_grant_type', oauth2credentials.grant_type)
+        
+        db.session.commit()
+        
+        return existing_user

@@ -10,6 +10,7 @@ from middlewares.auth import get_vtc_session
 from services.uber_credentials import auth_flow as uber_auth_flow, uber_url
 from services.lyft_credentials import auth_flow as lyft_auth_flow, lyft_url
 from db import db, User
+from services.session_manager import create_session
 
 app.debug = True
 app.secret_key = 'GregGuiCle'
@@ -47,53 +48,17 @@ def logout():
 @app.route("/api/uber/oauth", methods = ["GET"])
 def uber_callback():
     oauth2credentials = uber_authorize_user.handle_callback(uber_auth_flow, request.url)
-    cred_json = {
-        'uber': {
-            'access_token': oauth2credentials.access_token,
-            'refresh_token': oauth2credentials.refresh_token,
-            'expires_in_seconds': oauth2credentials.expires_in_seconds,
-            'grant_type': oauth2credentials.grant_type
-        }
-    }
-    
-    existing_user = User.query.filter_by(uber_client_id=oauth2credentials.client_id).first()
-    if(existing_user is None):
-        existing_user = User()
-        db.session.add(existing_user)
-        
-    existing_user.uber_access_token = oauth2credentials.access_token
-    existing_user.uber_refresh_token = oauth2credentials.refresh_token
-        
-    db.session.commit()
-    cred_json['user_id'] = existing_user.id
-    
-    session['tokens'] = cred_json
+    existing_user = User.create_or_update('uber', oauth2credentials)
+    create_session(existing_user);
+   
     return redirect(url_for('dashboard'))
     
 @app.route("/api/lyft/oauth", methods = ["GET"])
 def lyft_callback():
     oauth2credentials = lyft_authorize_user.handle_callback(lyft_auth_flow, request.url)
-    cred_json = {
-        'lyft': {
-            'access_token': oauth2credentials.access_token,
-            'refresh_token': oauth2credentials.refresh_token,
-            'expires_in_seconds': oauth2credentials.expires_in_seconds,
-            'grant_type': oauth2credentials.grant_type
-        }
-    }
+    existing_user = User.create_or_update('lyft', oauth2credentials)
+    create_session(existing_user);
     
-    existing_user = User.query.filter_by(uber_client_id=oauth2credentials.client_id).first()
-    if(existing_user is None):
-        existing_user = User()
-        db.session.add(existing_user)
-        
-    existing_user.lyft_access_token = oauth2credentials.access_token
-    existing_user.lyft_refresh_token = oauth2credentials.refresh_token
-        
-    db.session.commit()
-    cred_json['user_id'] = existing_user.id
-    
-    session['tokens'] = cred_json
     return redirect(url_for('dashboard'))
 
 @app.route("/dashboard")
@@ -110,6 +75,9 @@ def dashboard():
 
 @app.route("/api/products")
 def products():
+    if 'tokens' not in session:
+        return redirect(code=302, location=url_for('login'))
+        
     lat = request.args['lat']
     lng = request.args['lng']
     response = g.uber_client.get_products(lat, lng)
@@ -119,6 +87,9 @@ def products():
 
 @app.route("/api/pickuptimes")
 def pickuptime():
+    if 'tokens' not in session:
+        return redirect(code=302, location=url_for('login'))
+        
     lat = request.args['lat']
     lng = request.args['lng']
     response = g.uber_client.get_pickup_time_estimates(lat, lng)
@@ -128,6 +99,9 @@ def pickuptime():
 
 @app.route("/api/prices")
 def prices():
+    if 'tokens' not in session:
+        return redirect(code=302, location=url_for('login'))
+        
     start_lat = request.args['start_lat']
     start_lng = request.args['start_lng']
     end_lat = request.args['end_lat']
@@ -144,6 +118,9 @@ def prices():
 
 @app.route("/api/uber/activity")
 def activity():
+    if 'tokens' not in session:
+        return redirect(code=302, location=url_for('login'))
+        
     response = g.uber_client.get_user_activity()
     history = response.json
 

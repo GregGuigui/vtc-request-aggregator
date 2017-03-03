@@ -1,6 +1,7 @@
 from flask import session, request, g
 from uber_rides.session import OAuth2Credential, Session
 from uber_rides.client import UberRidesClient
+from lyft_rides.client import LyftRidesClient
 
 from app import app, env
 from services.uber_credentials import credentials as uber_credentials
@@ -14,7 +15,7 @@ def get_vtc_session():
         return
     # if oauth2credential is None:
     #     return false
-    if tokens['uber'] is not None:
+    if 'uber' in tokens:
         uber_oauth2credential_infos = tokens['uber']
         uber_oauth2credentials = OAuth2Credential(
             client_id=uber_credentials['client_id'],
@@ -29,7 +30,7 @@ def get_vtc_session():
         g.uber_session = Session(oauth2credential=uber_oauth2credentials)
         g.uber_client = UberRidesClient(g.uber_session, sandbox_mode=(env != 'prod'))
     
-    if tokens['lyft'] is not None:
+    if 'lyft' in tokens:
         lyft_oauth2credential_infos = tokens['lyft']
         lyft_oauth2credentials = OAuth2Credential(
             client_id=lyft_credentials['client_id'],
@@ -42,5 +43,5 @@ def get_vtc_session():
             refresh_token=lyft_oauth2credential_infos['refresh_token'])
     
         g.lyft_session = Session(oauth2credential=lyft_oauth2credentials)
-        g.lyft_client = LyftRidesClient(g.lyft_session, sandbox_mode=(env != 'prod'))
+        g.lyft_client = LyftRidesClient(g.lyft_session)
 
